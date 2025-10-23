@@ -22,21 +22,31 @@ const buildServer = async () => {
     },
   });
 
-  void app.register(fastifyHelmet, { global: true });
+  void app.register(fastifyHelmet, { 
+    global: true,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  });
   void app.register(fastifyCors, { 
-    origin: env.corsOrigin ? env.corsOrigin.split(',') : [
-      "https://komi-frontend-production.up.railway.app",
-      "https://komi-tg-bot-frontend.vercel.app",
-      "http://localhost:5173",
-      "http://localhost:3000"
-    ],
-    credentials: true 
+    origin: true, // Allow all origins
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
   });
   void app.register(fastifyRateLimit, {
     max: env.rateLimitMax,
     timeWindow: env.rateLimitWindow,
   });
   void app.register(registerApi);
+
+  // Add CORS headers to all responses
+  app.addHook('onSend', async (request, reply, payload) => {
+    reply.header('Access-Control-Allow-Origin', '*');
+    reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+    reply.header('Access-Control-Allow-Credentials', 'true');
+    return payload;
+  });
 
   // Health check endpoint for Railway
   app.get("/health", async (request, reply) => {
@@ -63,6 +73,16 @@ const start = async () => {
       });
     } else {
       console.log("Launching bot...");
+      console.log(`Bot token: ${env.telegramBotToken.substring(0, 10)}...`);
+      
+      // Test network connectivity
+      try {
+        console.log("Testing network connectivity...");
+        const response = await fetch("https://api.telegram.org/bot" + env.telegramBotToken + "/getMe");
+        console.log(`Network test response: ${response.status}`);
+      } catch (error) {
+        console.error("Network connectivity test failed:", (error as Error).message);
+      }
       
       // Retry logic for bot connection
       let retries = 3;
@@ -73,7 +93,13 @@ const start = async () => {
           break;
         } catch (error) {
           retries--;
-          console.log(`Bot launch failed, retries left: ${retries}`);
+          console.error(`Bot launch failed, retries left: ${retries}`, error);
+          console.error(`Error details:`, {
+            message: (error as Error).message,
+            code: (error as any).code,
+            type: (error as any).type,
+            stack: (error as Error).stack
+          });
           if (retries === 0) {
             throw error;
           }
