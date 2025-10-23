@@ -24,7 +24,7 @@ const buildServer = async () => {
 
   void app.register(fastifyHelmet, { global: true });
   void app.register(fastifyCors, { 
-    origin: [
+    origin: env.corsOrigin ? env.corsOrigin.split(',') : [
       "https://komi-frontend-production.up.railway.app",
       "https://komi-tg-bot-frontend.vercel.app",
       "http://localhost:5173",
