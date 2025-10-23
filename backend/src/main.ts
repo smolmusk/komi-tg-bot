@@ -23,7 +23,15 @@ const buildServer = async () => {
   });
 
   void app.register(fastifyHelmet, { global: true });
-  void app.register(fastifyCors, { origin: true, credentials: true });
+  void app.register(fastifyCors, { 
+    origin: [
+      "https://komi-frontend-production.up.railway.app",
+      "https://komi-tg-bot-frontend.vercel.app",
+      "http://localhost:5173",
+      "http://localhost:3000"
+    ],
+    credentials: true 
+  });
   void app.register(fastifyRateLimit, {
     max: env.rateLimitMax,
     timeWindow: env.rateLimitWindow,
