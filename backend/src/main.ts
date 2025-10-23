@@ -55,8 +55,23 @@ const start = async () => {
       });
     } else {
       console.log("Launching bot...");
-      await bot.launch();
-      console.log("Bot launched successfully!");
+      
+      // Retry logic for bot connection
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          await bot.launch();
+          console.log("Bot launched successfully!");
+          break;
+        } catch (error) {
+          retries--;
+          console.log(`Bot launch failed, retries left: ${retries}`);
+          if (retries === 0) {
+            throw error;
+          }
+          await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+        }
+      }
     }
 
     await scheduleSessionCleanup();
