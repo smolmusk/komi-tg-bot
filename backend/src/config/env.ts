@@ -6,8 +6,8 @@ loadEnv();
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.string().default("3000"),
-  DATABASE_URL: z.string().min(1),
-  REDIS_URL: z.string().default("redis://redis:6379/0"),
+  DATABASE_URL: z.string().min(1).optional(),
+  REDIS_URL: z.string().optional(),
   TELEGRAM_BOT_TOKEN: z.string().min(1),
   TELEGRAM_BOT_WEBHOOK: z.string().url().optional(),
   TELEGRAM_BOT_SECRET: z.string().min(1),
@@ -25,8 +25,8 @@ if (!result.success) {
 export const env = {
   nodeEnv: result.data.NODE_ENV,
   port: Number(result.data.PORT),
-  databaseUrl: result.data.DATABASE_URL,
-  redisUrl: result.data.REDIS_URL,
+  databaseUrl: result.data.DATABASE_URL ?? process.env.DATABASE_URL,
+  redisUrl: result.data.REDIS_URL ?? process.env.REDIS_URL,
   telegramBotToken: result.data.TELEGRAM_BOT_TOKEN,
   telegramBotWebhook: result.data.TELEGRAM_BOT_WEBHOOK,
   telegramBotSecret: result.data.TELEGRAM_BOT_SECRET,
