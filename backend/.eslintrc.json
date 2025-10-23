@@ -5,7 +5,7 @@
     "project": ["./tsconfig.base.json", "./tsconfig.json"]
   },
   "plugins": ["@typescript-eslint"],
-  "extends": ["standard-with-typescript", "prettier"],
+  "extends": ["@typescript-eslint/recommended", "prettier"],
   "env": {
     "node": true,
     "es2022": true
