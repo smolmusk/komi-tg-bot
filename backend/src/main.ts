@@ -1,0 +1,71 @@
+import Fastify from "fastify";
+import fastifyCors from "@fastify/cors";
+import fastifyHelmet from "@fastify/helmet";
+import fastifyRateLimit from "@fastify/rate-limit";
+import { env } from "./config/env";
+import { registerApi } from "./modules/api";
+import { bot } from "./config/telegram";
+import { scheduleSessionCleanup } from "./jobs/session-cleaner";
+
+const buildServer = async () => {
+  const app = Fastify({
+    logger: {
+      transport:
+        env.nodeEnv === "development"
+          ? {
+              target: "pino-pretty",
+              options: {
+                colorize: true,
+              },
+            }
+          : undefined,
+    },
+  });
+
+  void app.register(fastifyHelmet, { global: true });
+  void app.register(fastifyCors, { origin: true, credentials: true });
+  void app.register(fastifyRateLimit, {
+    max: env.rateLimitMax,
+    timeWindow: env.rateLimitWindow,
+  });
+  void app.register(registerApi);
+
+  app.addHook("onClose", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    bot.stop();
+  });
+
+  // eslint-disable-next-line @typescript-eslint/return-await
+  return app;
+};
+
+const start = async () => {
+  const app = await buildServer();
+
+  try {
+    if (env.telegramBotWebhook != null) {
+      console.log("Setting webhook...");
+      await bot.telegram.setWebhook(env.telegramBotWebhook, {
+        allowed_updates: ["message", "callback_query"],
+      });
+    } else {
+      console.log("Launching bot...");
+      await bot.launch();
+      console.log("Bot launched successfully!");
+    }
+
+    await scheduleSessionCleanup();
+
+    console.log(`Starting server on port ${env.port}...`);
+    await app.listen({ port: env.port, host: "0.0.0.0" });
+    console.log(`Server started successfully on port ${env.port}!`);
+  } catch (err) {
+    console.error("Failed to start:", err);
+    app.log.error(err);
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    bot.stop();
+    process.exit(1);
+  }
+};
+
+void start();

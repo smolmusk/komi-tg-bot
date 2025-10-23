@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String        @id @default(cuid())
+  telegramId       String        @unique
+  username         String?
+  displayName      String?
+  clicks           BigInt        @default(0)
+  totalClicks      BigInt        @default(0)
+  lastActiveAt     DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  sessions         Session[]
+  clickEvents      ClickEvent[]
+}
+
+model Session {
+  id              String    @id @default(cuid())
+  userId          String
+  chatId          String
+  inlineMessageId String?
+  status          SessionStatus @default(ACTIVE)
+  lastHeartbeatAt DateTime?
+  createdAt       DateTime  @default(now())
+  expiredAt       DateTime?
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([chatId])
+}
+
+enum SessionStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+}
+
+model ClickEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  delta      BigInt
+  totalClicks BigInt
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model LeaderboardSnapshot {
+  id           String   @id @default(cuid())
+  capturedAt   DateTime @default(now())
+  payload      Json
+
+  @@index([capturedAt])
+}
+
+model SystemMetric {
+  id        String   @id @default(cuid())
+  name      String
+  value     BigInt
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+}

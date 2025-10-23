@@ -1,0 +1,9 @@
+export const CLICK_INCREMENT = 1;
+export const CLICK_PENDING_HASH_KEY = "clicks:pending";
+export const USER_TOTAL_KEY_PREFIX = "user:total:";
+export const LEADERBOARD_KEY = "leaderboard:realtime";
+export const GLOBAL_METRIC_KEY = "metrics:global_clicks";
+export const USER_TOTAL_TTL_MS = 3600000;
+export const RATE_LIMIT_KEY_PREFIX = "ratelimit:clicks:";
+export const RATE_LIMIT_WINDOW_MS = 1000;
+export const RATE_LIMIT_MAX_ACTIONS = 25;

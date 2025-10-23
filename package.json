@@ -1,0 +1,9 @@
+{
+  "name": "komi-tg-bot",
+  "private": true,
+  "packageManager": "yarn@4.10.3",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}

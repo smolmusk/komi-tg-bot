@@ -1,2 +1,14 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Ensure shell scripts keep executable bit
+*.sh text eol=lf
+
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+
+# Keep images as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
