@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { LeaderboardEntry } from "../types";
 
 const fetchLeaderboard = async (): Promise<LeaderboardEntry[]> => {
-  const res = await fetch("/api/leaderboard");
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaderboard`);
   if (!res.ok) {
     throw new Error("Failed to load leaderboard");
   }
@@ -10,7 +10,7 @@ const fetchLeaderboard = async (): Promise<LeaderboardEntry[]> => {
 };
 
 const fetchGlobal = async (): Promise<string> => {
-  const res = await fetch("/api/leaderboard/global");
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaderboard/global`);
   if (!res.ok) {
     throw new Error("Failed to load totals");
   }

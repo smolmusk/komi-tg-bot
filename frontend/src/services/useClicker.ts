@@ -14,7 +14,7 @@ export const useClicker = ({ userId, onSuccess, onError }: Options) => {
         throw new Error("User not initialised");
       }
 
-      const res = await fetch("/api/clicks", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/clicks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
