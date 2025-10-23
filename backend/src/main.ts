@@ -30,6 +30,11 @@ const buildServer = async () => {
   });
   void app.register(registerApi);
 
+  // Health check endpoint for Railway
+  app.get("/health", async (request, reply) => {
+    return { status: "ok", timestamp: new Date().toISOString() };
+  });
+
   app.addHook("onClose", async () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     bot.stop();

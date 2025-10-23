@@ -7,13 +7,16 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
+    "start": "node dist/main.js",
     "lint": "eslint src",
     "format": "prettier --write src",
     "type-check": "tsc --noEmit",
     "prisma": "prisma",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "railway:migrate": "node railway-migrate.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@fastify/cors": "^8.5.0",

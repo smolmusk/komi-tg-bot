@@ -11,6 +11,7 @@ const schema = z.object({
   TELEGRAM_BOT_TOKEN: z.string().min(1),
   TELEGRAM_BOT_WEBHOOK: z.string().url().optional(),
   TELEGRAM_BOT_SECRET: z.string().min(1),
+  MINI_APP_URL: z.string().url().default("https://komi-tg-bot-frontend.vercel.app"),
   RATE_LIMIT_MAX: z.string().default("30"),
   RATE_LIMIT_WINDOW: z.string().default("60000"),
 });
@@ -29,6 +30,7 @@ export const env = {
   telegramBotToken: result.data.TELEGRAM_BOT_TOKEN,
   telegramBotWebhook: result.data.TELEGRAM_BOT_WEBHOOK,
   telegramBotSecret: result.data.TELEGRAM_BOT_SECRET,
+  miniAppUrl: result.data.MINI_APP_URL,
   rateLimitMax: Number(result.data.RATE_LIMIT_MAX),
   rateLimitWindow: Number(result.data.RATE_LIMIT_WINDOW),
 };

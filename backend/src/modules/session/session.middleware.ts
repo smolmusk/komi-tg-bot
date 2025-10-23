@@ -58,10 +58,10 @@ export const createSessionMiddleware = (): MiddlewareFn<SessionContext> => {
     // Initialize scene session if it exists
     if (ctx.scene != null) {
       if (ctx.scene.session == null) {
-        ctx.scene.session = {};
+        (ctx.scene as any).session = {};
       }
-      ctx.scene.session.userId = user.id;
-      ctx.scene.session.chatId = chatId;
+      (ctx.scene.session as any).userId = user.id;
+      (ctx.scene.session as any).chatId = chatId;
     }
 
     await next();

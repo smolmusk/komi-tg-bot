@@ -17,7 +17,19 @@ const stage = new Scenes.Stage<SessionContext>([
 bot.command("start", async (ctx) => {
   console.log("✅ /start command received!");
   await ctx.reply(
-    "Welcome to Komi Clicker! 🚀\n\nThis is a simple clicker game where you can:\n• Click to earn points\n• View leaderboards\n• Compete with friends\n\n🎮 **To play the game:**\n1. Open your browser\n2. Go to: http://172.16.13.2:5173\n3. Start clicking to earn points!\n\nUse /help to see available commands!"
+    "Welcome to Komi Clicker! 🚀\n\nThis is a simple clicker game where you can:\n• Click to earn points\n• View leaderboards\n• Compete with friends\n\nClick the button below to start playing!",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "🎮 Play Komi Clicker",
+              web_app: { url: env.miniAppUrl }
+            }
+          ]
+        ]
+      }
+    }
   );
 });
 
@@ -26,11 +38,39 @@ bot.command("help", async (ctx) => {
 });
 
 bot.command("leaderboard", async (ctx) => {
-  await ctx.reply("🏆 **Leaderboard**\n\nTop players will be shown here!\n\nPlay the game at: http://172.16.13.2:5173");
+  await ctx.reply(
+    "🏆 **Leaderboard**\n\nTop players will be shown here!\n\nClick the button below to view the full leaderboard!",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "🏆 View Leaderboard",
+              web_app: { url: env.miniAppUrl }
+            }
+          ]
+        ]
+      }
+    }
+  );
 });
 
 bot.command("stats", async (ctx) => {
-  await ctx.reply("📊 **Your Stats**\n\nYour game statistics will be shown here!\n\nPlay the game at: http://172.16.13.2:5173");
+  await ctx.reply(
+    "📊 **Your Stats**\n\nYour game statistics will be shown here!\n\nClick the button below to view your stats!",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "📊 View My Stats",
+              web_app: { url: env.miniAppUrl }
+            }
+          ]
+        ]
+      }
+    }
+  );
 });
 
 bot.use(session());
