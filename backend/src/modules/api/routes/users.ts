@@ -24,7 +24,7 @@ export const registerUserRoutes = async (app: FastifyInstance) => {
         return await reply.status(404).send({ error: "User not found" });
       }
 
-      const rankKey = "leaderboard:rank";
+      const rankKey = "leaderboard:realtime";
       const userRank = await redis.zrevrank(rankKey, user.id);
       const rank = userRank !== null ? userRank + 1 : 999999;
 
@@ -64,7 +64,7 @@ export const registerUserRoutes = async (app: FastifyInstance) => {
         return await reply.status(404).send({ error: "User not found" });
       }
 
-      const rankKey = "leaderboard:rank";
+      const rankKey = "leaderboard:realtime";
       const userRank = await redis.zrevrank(rankKey, userId);
       const rank = userRank !== null ? userRank + 1 : 999999;
 

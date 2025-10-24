@@ -38,18 +38,26 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
       const { userId: telegramId, chatId } = parseResult.data;
       console.log("📍 Heartbeat received:", { telegramId, chatId });
 
-      // Find user by telegramId (created by session middleware)
-      const user = await prisma.user.findUnique({
+      let user = await prisma.user.findUnique({
         where: { telegramId },
       });
 
       if (!user) {
-        console.log("⚠️ User not found for telegramId:", telegramId);
-        return await reply.status(404).send({ error: "User not found" });
+        console.log("📝 Creating user for telegramId:", telegramId);
+        user = await prisma.user.create({
+          data: {
+            telegramId,
+            username: null,
+            displayName: `User ${telegramId}`,
+            clicks: 0,
+            totalClicks: 0,
+            lastActiveAt: new Date(),
+          },
+        });
+        console.log("✅ User created:", user.id);
       }
 
       try {
-        // Update existing session or create new one
         let session = await prisma.session.findFirst({
           where: {
             userId: user.id,
@@ -59,7 +67,6 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
         });
 
         if (session) {
-          // Update heartbeat time
           await prisma.session.update({
             where: { id: session.id },
             data: { lastHeartbeatAt: new Date() },
@@ -84,7 +91,6 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
         const err = dbError as any;
         console.error("❌ Database error in heartbeat:", err.code, err.message);
 
-        // Handle missing table gracefully
         if (err.code === "P2021") {
           console.error("Session table not initialized");
           return await reply.status(503).send({ error: "Database not initialized" });
