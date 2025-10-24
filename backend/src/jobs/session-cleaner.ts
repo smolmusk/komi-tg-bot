@@ -5,11 +5,24 @@ import { cleanupSessions } from "../modules/session/cleanup";
 const SESSION_QUEUE = "session-cleaner";
 
 const connection = redis.duplicate({
-  maxRetriesPerRequest: null,
+  connectTimeout: 30000,
+  keepAlive: 30000,
+  maxRetriesPerRequest: 3,
+  enableReadyCheck: false,
+  lazyConnect: false,
+  enableOfflineQueue: true,
 });
 
 connection.on("error", (error) => {
   console.error("Session cleaner Redis connection error", error);
+});
+
+connection.on("ready", () => {
+  console.log("Session cleaner Redis connection established");
+});
+
+connection.on("close", () => {
+  console.log("Session cleaner Redis connection closed");
 });
 
 export const queue = new Queue(SESSION_QUEUE, { connection });
@@ -17,7 +30,11 @@ export const queue = new Queue(SESSION_QUEUE, { connection });
 export const worker = new Worker(
   SESSION_QUEUE,
   async () => {
-    await cleanupSessions();
+    try {
+      await cleanupSessions();
+    } catch (error) {
+      console.error("Session cleanup failed:", error);
+    }
   },
   { connection, concurrency: 1 }
 );
@@ -53,6 +70,7 @@ export const scheduleSessionCleanup = async () => {
       }
     );
     scheduled = true;
+    console.log("Session cleanup scheduled successfully");
   } catch (error) {
     console.error("Failed to schedule session cleanup", error);
   }

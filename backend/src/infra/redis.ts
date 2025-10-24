@@ -6,32 +6,18 @@ const globalForRedis = globalThis as unknown as { redis?: Redis };
 const buildRedisClient = () => {
   const baseUrl = env.redisUrl ?? "redis://localhost:6379";
 
+  const connectionString = baseUrl;
+
   const options: RedisOptions = {
-    maxRetriesPerRequest: 2,
-    enableReadyCheck: true,
-    lazyConnect: true,
+    connectTimeout: 30000,
+    keepAlive: 30000,
+    maxRetriesPerRequest: 3,
+    enableReadyCheck: false,
+    lazyConnect: false,
+    enableOfflineQueue: true,
   };
-
-  let connectionString = baseUrl;
-
-  try {
-    const parsed = new URL(baseUrl);
-    const requiresRailwayTls = /\.proxy\.rlwy\.net$/i.test(parsed.hostname);
-    const usesTlsProtocol = parsed.protocol === "rediss:";
-
-    if (requiresRailwayTls || usesTlsProtocol) {
-      options.tls = {
-        rejectUnauthorized: false,
-      };
-
-      if (!usesTlsProtocol) {
-        parsed.protocol = "rediss:";
-        connectionString = parsed.toString();
-      }
-    }
-  } catch {
-    // Leave connectionString/options unchanged if parsing fails.
-  }
+  
+  console.log(`Redis connection string: ${connectionString}`);
 
   return new Redis(connectionString, options);
 };
@@ -49,8 +35,31 @@ if (!redisLogAttached) {
     console.error("Redis connection error", error);
   });
 
+  redis.on("connect", () => {
+    console.log("Redis connecting...");
+  });
+
+  redis.on("close", () => {
+    console.log("Redis connection closed");
+  });
+
   redisLogAttached = true;
 }
+
+// Test Redis connection with retry
+const testRedisConnection = async () => {
+  try {
+    await redis.ping();
+    console.log("Redis ping successful");
+  } catch (error) {
+    console.error("Redis ping failed:", error);
+    console.log("⚠️  Redis is not available, app will continue without Redis features");
+    // Don't throw, let the app continue without Redis
+  }
+};
+
+// Test connection after a short delay
+setTimeout(testRedisConnection, 1000);
 
 if (process.env.NODE_ENV !== "production") {
   globalForRedis.redis = redis;
