@@ -37,7 +37,13 @@ const buildServer = async () => {
     max: env.rateLimitMax,
     timeWindow: env.rateLimitWindow,
   });
-  void app.register(registerApi);
+  
+  try {
+    void app.register(registerApi);
+  } catch (error) {
+    console.error("Failed to register API routes:", error);
+    throw error;
+  }
 
   // Add CORS headers to all responses
   app.addHook('onSend', async (request, reply, payload) => {
