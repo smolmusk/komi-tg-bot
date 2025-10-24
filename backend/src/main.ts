@@ -101,18 +101,19 @@ const start = async () => {
             stack: (error as Error).stack
           });
           if (retries === 0) {
-            throw error;
+            console.error("Bot launch failed after all retries, continuing without bot...");
+            // Don't throw error, continue without bot
           }
           await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
         }
       }
     }
 
-    await scheduleSessionCleanup();
-
     console.log(`Starting server on port ${env.port}...`);
     await app.listen({ port: env.port, host: "0.0.0.0" });
     console.log(`Server started successfully on port ${env.port}!`);
+
+    await scheduleSessionCleanup();
   } catch (err) {
     console.error("Failed to start:", err);
     app.log.error(err);

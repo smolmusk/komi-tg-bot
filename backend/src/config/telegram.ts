@@ -24,17 +24,19 @@ bot.command("start", async (ctx) => {
           [
             {
               text: "🎮 Play Komi Clicker",
-              web_app: { url: env.miniAppUrl }
-            }
-          ]
-        ]
-      }
+              web_app: { url: env.miniAppUrl },
+            },
+          ],
+        ],
+      },
     }
   );
 });
 
 bot.command("help", async (ctx) => {
-  await ctx.reply("Available commands:\n/start - Start the game\n/help - Show this help message\n/leaderboard - View the leaderboard\n/stats - View your stats");
+  await ctx.reply(
+    "Available commands:\n/start - Start the game\n/help - Show this help message\n/leaderboard - View the leaderboard\n/stats - View your stats"
+  );
 });
 
 bot.command("leaderboard", async (ctx) => {
@@ -46,11 +48,11 @@ bot.command("leaderboard", async (ctx) => {
           [
             {
               text: "🏆 View Leaderboard",
-              web_app: { url: env.miniAppUrl }
-            }
-          ]
-        ]
-      }
+              web_app: { url: env.miniAppUrl },
+            },
+          ],
+        ],
+      },
     }
   );
 });
@@ -64,11 +66,11 @@ bot.command("stats", async (ctx) => {
           [
             {
               text: "📊 View My Stats",
-              web_app: { url: env.miniAppUrl }
-            }
-          ]
-        ]
-      }
+              web_app: { url: env.miniAppUrl },
+            },
+          ],
+        ],
+      },
     }
   );
 });

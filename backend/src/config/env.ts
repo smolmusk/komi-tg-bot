@@ -12,7 +12,7 @@ const schema = z.object({
   TELEGRAM_BOT_WEBHOOK: z.string().url().optional(),
   TELEGRAM_BOT_MODE: z.enum(["polling", "webhook"]).default("polling"),
   TELEGRAM_BOT_SECRET: z.string().min(1),
-  MINI_APP_URL: z.string().url().default("https://komi-tg-bot-frontend.vercel.app"),
+  MINI_APP_URL: z.string().url(),
   RATE_LIMIT_MAX: z.string().default("30"),
   RATE_LIMIT_WINDOW: z.string().default("60000"),
 });
