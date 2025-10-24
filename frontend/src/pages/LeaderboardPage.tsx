@@ -1,11 +1,5 @@
 import "../styles/leaderboard.css";
-
-interface LeaderboardEntry {
-  rank: number;
-  userId: string;
-  username: string | null | undefined;
-  totalClicks: string;
-}
+import type { LeaderboardEntry } from "../types";
 
 interface LeaderboardPageProps {
   leaderboardEntries: LeaderboardEntry[];
