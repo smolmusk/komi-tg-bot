@@ -1,7 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../../../infra/prisma";
 import { redis } from "../../../infra/redis";
+import { LeaderboardService } from "../../leaderboard/service";
 import type { LeaderboardEntry } from "../../leaderboard/service";
+
+const leaderboardService = new LeaderboardService();
 
 interface LeaderboardPayload extends LeaderboardEntry {}
 
@@ -10,41 +13,25 @@ const GLOBAL_CLICKS_KEY = "metrics:global_clicks";
 const CACHE_TTL_SECONDS = 15;
 
 export const registerLeaderboardRoutes = async (app: FastifyInstance) => {
-  app.get("/", async (_request, reply) => {
+  app.get("/", async (request, reply) => {
     try {
-      const cached = await redis.get(LEADERBOARD_KEY);
-
-      if (cached != null) {
-        await reply.send(JSON.parse(cached) as LeaderboardPayload[]);
-        return;
+      const { userId } = request.query as { userId?: string };
+      
+      if (userId) {
+        // Use the new method that includes current user position
+        const result = await leaderboardService.getTop20WithUser(userId);
+        await reply.send({
+          entries: result.entries,
+          userRank: result.userRank,
+        });
+      } else {
+        // Fallback to original method
+        const entries = await leaderboardService.getTop20();
+        await reply.send({
+          entries,
+          userRank: null,
+        });
       }
-
-      const topUsers: Array<{
-        id: string;
-        username: string | null;
-        displayName: string | null;
-        totalClicks: bigint;
-      }> = await prisma.user.findMany({
-        orderBy: { totalClicks: "desc" },
-        take: 20,
-        select: {
-          id: true,
-          username: true,
-          displayName: true,
-          totalClicks: true,
-        },
-      });
-
-      const payload: LeaderboardPayload[] = topUsers.map((user, index) => ({
-        rank: index + 1,
-        userId: user.id,
-        username: user.username ?? user.displayName,
-        totalClicks: user.totalClicks.toString(),
-      }));
-
-      await redis.set(LEADERBOARD_KEY, JSON.stringify(payload), "EX", CACHE_TTL_SECONDS);
-
-      await reply.send(payload);
     } catch (error) {
       const err = error as any;
       // Check if database table doesn't exist

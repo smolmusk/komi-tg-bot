@@ -18,12 +18,7 @@ export interface LeaderboardEntry {
 
 export class LeaderboardService {
   public async getTop20(): Promise<LeaderboardEntry[]> {
-    const cached = await redis.zrevrange(LEADERBOARD_KEY, 0, 19, "WITHSCORES");
-
-    if (cached.length > 0) {
-      return await this.hydrateEntries(this.parseZRange(cached));
-    }
-
+    // Always fetch fresh data from database - no caching needed
     const topUsers: MinimalUser[] = await prisma.user.findMany({
       orderBy: { totalClicks: "desc" },
       take: 20,
@@ -35,7 +30,7 @@ export class LeaderboardService {
       },
     });
 
-    // Use database values directly - no need for Redis synchronization
+    // Use database values directly
     return topUsers.map(
       (user, index): LeaderboardEntry => ({
         rank: index + 1,
@@ -46,8 +41,84 @@ export class LeaderboardService {
     );
   }
 
+  public async getTop20WithUser(currentUserId: string): Promise<{
+    entries: LeaderboardEntry[];
+    userRank: LeaderboardEntry | null;
+  }> {
+    // Get top 20 users
+    const topUsers: MinimalUser[] = await prisma.user.findMany({
+      orderBy: { totalClicks: "desc" },
+      take: 20,
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        totalClicks: true,
+      },
+    });
+
+    // Check if current user is in top 20
+    const currentUserInTop20 = topUsers.find(user => user.id === currentUserId);
+    
+    let entries = topUsers.map(
+      (user, index): LeaderboardEntry => ({
+        rank: index + 1,
+        userId: user.id,
+        username: user.username ?? user.displayName,
+        totalClicks: user.totalClicks.toString(),
+      })
+    );
+
+    let userRank: LeaderboardEntry | null = null;
+
+    if (currentUserInTop20) {
+      // User is in top 20, find their position
+      const userIndex = topUsers.findIndex(user => user.id === currentUserId);
+      userRank = {
+        rank: userIndex + 1,
+        userId: currentUserId,
+        username: currentUserInTop20.username ?? currentUserInTop20.displayName,
+        totalClicks: currentUserInTop20.totalClicks.toString(),
+      };
+    } else {
+      // User is not in top 20, get their rank and replace the 20th position
+      const userRankCount = await prisma.user.count({
+        where: {
+          totalClicks: {
+            gt: topUsers[19]?.totalClicks || BigInt(0),
+          },
+        },
+      });
+
+      const currentUser = await prisma.user.findUnique({
+        where: { id: currentUserId },
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          totalClicks: true,
+        },
+      });
+
+      if (currentUser) {
+        userRank = {
+          rank: userRankCount + 1,
+          userId: currentUserId,
+          username: currentUser.username ?? currentUser.displayName,
+          totalClicks: currentUser.totalClicks.toString(),
+        };
+
+        // Replace the 20th position with current user
+        entries[19] = userRank;
+      }
+    }
+
+    return { entries, userRank };
+  }
+
   public async updateScore(userId: string, score: number) {
-    await redis.multi().zadd(LEADERBOARD_KEY, score, userId).expire(LEADERBOARD_KEY, 10).exec();
+    // No longer needed - leaderboard uses database as single source of truth
+    // Database is updated in click service, so leaderboard will reflect changes on next fetch
   }
 
   public async getGlobalTotal() {

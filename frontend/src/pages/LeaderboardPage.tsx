@@ -3,9 +3,10 @@ import type { LeaderboardEntry } from "../types";
 
 interface LeaderboardPageProps {
   leaderboardEntries: LeaderboardEntry[];
+  userRank: LeaderboardEntry | null;
 }
 
-const LeaderboardPage = ({ leaderboardEntries }: LeaderboardPageProps) => {
+const LeaderboardPage = ({ leaderboardEntries, userRank }: LeaderboardPageProps) => {
   const getMedalEmoji = (rank: number) => {
     if (rank === 1) return "🥇";
     if (rank === 2) return "🥈";
@@ -38,24 +39,33 @@ const LeaderboardPage = ({ leaderboardEntries }: LeaderboardPageProps) => {
             <p>No players yet. Be the first!</p>
           </div>
         ) : (
-          leaderboardEntries.map((entry) => (
-            <div key={entry.userId} className="leaderboard-row">
-              <div className="rank-section">
-                <span className="rank-medal">{getMedalEmoji(entry.rank)}</span>
-                <span className="rank-number">#{entry.rank}</span>
-              </div>
+          leaderboardEntries.map((entry) => {
+            const isCurrentUser = userRank && entry.userId === userRank.userId;
+            return (
+              <div 
+                key={entry.userId} 
+                className={`leaderboard-row ${isCurrentUser ? 'current-user' : ''}`}
+              >
+                <div className="rank-section">
+                  <span className="rank-medal">{getMedalEmoji(entry.rank)}</span>
+                  <span className="rank-number">#{entry.rank}</span>
+                </div>
 
-              <div className="player-section">
-                <div className="player-name">{entry.username || `Player ${entry.userId}`}</div>
-                <div className="player-id">@{entry.userId}</div>
-              </div>
+                <div className="player-section">
+                  <div className="player-name">
+                    {entry.username || `Player ${entry.userId}`}
+                    {isCurrentUser && <span className="you-badge">YOU</span>}
+                  </div>
+                  <div className="player-id">@{entry.userId}</div>
+                </div>
 
-              <div className="clicks-section">
-                <div className="clicks-value">{formatClicks(entry.totalClicks)}</div>
-                <div className="clicks-label">clicks</div>
+                <div className="clicks-section">
+                  <div className="clicks-value">{formatClicks(entry.totalClicks)}</div>
+                  <div className="clicks-label">clicks</div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

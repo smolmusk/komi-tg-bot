@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useHeartbeat } from "../services/useHeartbeat";
 import { useLeaderboards } from "../services/useLeaderboards";
 import { useClicker } from "../services/useClicker";
+import { useUserStats } from "../services/useUserStats";
 import { API_BASE_URL } from "../config/api";
 import HomePage from "../pages/HomePage";
 import LeaderboardPage from "../pages/LeaderboardPage";
@@ -90,8 +91,9 @@ const App = () => {
     }
   }, []);
 
-  const heartbeat = useHeartbeat(userId);
-  const leaderboard = useLeaderboards();
+  const heartbeat = useHeartbeat(userId ?? undefined);
+  const leaderboard = useLeaderboards(userId ?? undefined);
+  const userStats = useUserStats(userId ?? undefined);
   const clicker = useClicker({
     userId,
     onSuccess: () => {
@@ -125,13 +127,14 @@ const App = () => {
             username={username}
             heartbeatStatus={heartbeat.status}
             globalClicks={leaderboard.globalTotal}
+            userClicks={userStats.stats?.totalClicks || "0"}
             clickerLoading={clicker.loading}
             onIncrement={clicker.increment}
             error={error}
           />
         );
       case "leaderboard":
-        return <LeaderboardPage leaderboardEntries={leaderboard.entries} />;
+        return <LeaderboardPage leaderboardEntries={leaderboard.entries} userRank={leaderboard.userRank} />;
       case "stats":
         return <StatsPage userId={userId} />;
       default:

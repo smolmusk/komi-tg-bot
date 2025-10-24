@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../../../infra/prisma";
-import { redis } from "../../../infra/redis";
 
 export const registerUserRoutes = async (app: FastifyInstance) => {
   app.get("/telegram/:telegramId", async (request, reply) => {
@@ -25,13 +24,14 @@ export const registerUserRoutes = async (app: FastifyInstance) => {
       }
 
       // Calculate rank from database - count users with higher totalClicks
-      const rank = await prisma.user.count({
-        where: {
-          totalClicks: {
-            gt: user.totalClicks,
+      const rank =
+        (await prisma.user.count({
+          where: {
+            totalClicks: {
+              gt: user.totalClicks,
+            },
           },
-        },
-      }) + 1;
+        })) + 1;
 
       await reply.send({
         id: user.id,
@@ -70,13 +70,14 @@ export const registerUserRoutes = async (app: FastifyInstance) => {
       }
 
       // Calculate rank from database - count users with higher totalClicks
-      const rank = await prisma.user.count({
-        where: {
-          totalClicks: {
-            gt: user.totalClicks,
+      const rank =
+        (await prisma.user.count({
+          where: {
+            totalClicks: {
+              gt: user.totalClicks,
+            },
           },
-        },
-      }) + 1;
+        })) + 1;
 
       await reply.send({
         id: user.id,

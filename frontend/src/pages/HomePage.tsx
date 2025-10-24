@@ -5,6 +5,7 @@ interface HomePageProps {
   username: string | null;
   heartbeatStatus: "online" | "offline" | "connecting";
   globalClicks: string | null;
+  userClicks: string | null;
   clickerLoading: boolean;
   onIncrement: () => void;
   error: string | null;
@@ -14,6 +15,7 @@ const HomePage = ({
   username,
   heartbeatStatus,
   globalClicks,
+  userClicks,
   clickerLoading,
   onIncrement,
   error,
@@ -39,9 +41,16 @@ const HomePage = ({
       {error && !isLimited && <div className="error-message">{error}</div>}
 
       <div className="game-container">
-        <div className="global-stats-card">
-          <div className="stat-label">🌍 Total Clicks</div>
-          <div className="stat-value">{globalClicks || "0"}</div>
+        <div className="stats-row">
+          <div className="global-stats-card">
+            <div className="stat-label">🌍 Global</div>
+            <div className="stat-value">{globalClicks || "0"}</div>
+          </div>
+
+          <div className="user-stats-card">
+            <div className="stat-label">Your Clicks</div>
+            <div className="stat-value main-score">{userClicks || "0"}</div>
+          </div>
         </div>
 
         <button
@@ -50,9 +59,7 @@ const HomePage = ({
           disabled={!isConnected || clickerLoading || isLimited}
         >
           <span className="tap-emoji">👆</span>
-          <span className="tap-text">
-            {isLimited ? `Wait ${retryAfter}s` : "TAP"}
-          </span>
+          <span className="tap-text">{isLimited ? `Wait ${retryAfter}s` : "TAP"}</span>
         </button>
 
         <div className="tap-hint">
