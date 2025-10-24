@@ -6,6 +6,7 @@ import { useClicker } from "../services/useClicker";
 import HomePage from "../pages/HomePage";
 import LeaderboardPage from "../pages/LeaderboardPage";
 import StatsPage from "../pages/StatsPage";
+import UsernameSetupPage from "../pages/UsernameSetupPage";
 import "../styles/app.css";
 
 declare global {
@@ -38,25 +39,28 @@ const App = () => {
   const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [telegramUsername, setTelegramUsername] = useState<string | undefined>();
+  const [usernameSetup, setUsernameSetup] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<Page>("home");
 
   useEffect(() => {
     const telegramUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    const telegramUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username;
+    const tgUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username;
     const firstName = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name;
 
     console.log("Telegram Web App data:", {
       hasWebApp: !!window.Telegram?.WebApp,
       userId: telegramUserId,
-      username: telegramUsername,
+      username: tgUsername,
       firstName,
     });
 
     if (telegramUserId != null) {
       console.log("✅ Telegram userId found:", telegramUserId);
       setUserId(String(telegramUserId));
-      setUsername(telegramUsername || firstName || `User ${telegramUserId}`);
+      setTelegramUsername(tgUsername);
+      setUsernameSetup(false);
     } else {
       console.error("❌ No Telegram userId found");
     }
@@ -75,6 +79,33 @@ const App = () => {
       setError(message);
     },
   });
+
+  const handleUsernameSetupComplete = (newUsername: string) => {
+    setUsername(newUsername);
+    setUsernameSetup(true);
+  };
+
+  if (!userId) {
+    return (
+      <div className="app-container">
+        <div className="app-content">
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <h2>Loading...</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!usernameSetup) {
+    return (
+      <UsernameSetupPage
+        userId={userId}
+        telegramUsername={telegramUsername}
+        onComplete={handleUsernameSetupComplete}
+      />
+    );
+  }
 
   const renderPage = () => {
     switch (currentPage) {

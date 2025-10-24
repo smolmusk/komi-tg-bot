@@ -73,15 +73,56 @@ cd backend
 npm test
 ```
 
+## API Endpoints
+
+### Username Management
+
+- **POST `/api/username/suggestions`**: Get username suggestions based on Telegram username
+  - Payload: `{ telegramUsername?: string }`
+  - Response: `{ suggestions: string[] }`
+
+- **POST `/api/username/validate`**: Validate if a username is available
+  - Payload: `{ username: string }`
+  - Response: `{ valid: boolean; message?: string }`
+
+- **POST `/api/username/set`**: Set username for a user
+  - Payload: `{ userId: string; username: string }`
+  - Response: `{ success: boolean; message?: string }`
+
+### Session Management
+
+- **GET `/api/sessions`**: Get session statistics
+  - Response: `{ active: number; inactive: number }`
+
+- **POST `/api/sessions/heartbeats`**: Send heartbeat to keep session alive
+  - Payload: `{ userId: string; chatId?: string }`
+  - Response: `{ status: "ok" }`
+
+### Clicks & Leaderboard
+
+- **POST `/api/clicks`**: Register a click for a user (rate limited)
+  - Payload: `{ userId: string }`
+  - Response: Click count data
+
+- **GET `/api/leaderboard`**: Get top 20 players
+  - Response: `LeaderboardEntry[]`
+
+- **GET `/api/leaderboard/global`**: Get global statistics
+  - Response: Global click counts
+
 ## Features
 
-- Graceful onboarding requiring username setup via Telegram scenes.
+- **Username Onboarding**: Users set up a unique username on first login with AI-generated suggestions based on their Telegram username, or can create a custom one. No duplicates allowed.
+- **Graceful onboarding** requiring username setup via Telegram scenes.
 - Real-time click tracking with Redis-backed rate limiting (25 clicks/sec per user).
 - Leaderboard of top 20 players with self highlighting and cached refreshes.
 - Global click counters with low-latency redis cache.
 - Session heartbeat and cleanup to reclaim inactive sessions while offering reconnection.
 - Automatic background job scheduling via BullMQ.
 - Production-grade logging, error handling, validation, and API schema enforcement.
+- **Multi-page UI**: Home (clicker), Leaderboard (top 20 rankings), and Stats (user profile) with gamified Fredoka fonts.
+- **No-scroll single-page layout**: All content fits on one screen for mobile optimization.
+- **Responsive Mini App**: Works seamlessly in Telegram's native environment with WebApp integration.
 
 ## Deployment Notes
 

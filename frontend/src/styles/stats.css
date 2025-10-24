@@ -1,32 +1,36 @@
 .stats-page {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    gap: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 12px;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .stats-header {
-    text-align: center;
-    padding: 20px 0 10px 0;
+  text-align: center;
+  padding: 8px 0 4px 0;
+  flex-shrink: 0;
 }
 
 .stats-header h1 {
-    font-size: 32px;
-    margin: 0;
-    font-weight: 700;
+  font-size: 28px;
+  margin: 0;
+  font-weight: 700;
 }
 
 .stats-subtitle {
-    font-size: 14px;
-    margin: 4px 0 0 0;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
+  font-size: 12px;
+  margin: 2px 0 0 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
 }
 
 .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .stat-card {
