@@ -54,6 +54,21 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
         // If no session exists, create one
         if (updated.count === 0) {
           console.log("📝 Creating new session for userId:", userId);
+          
+          // First, ensure the user exists
+          await prisma.user.upsert({
+            where: { id: userId },
+            update: { lastActiveAt: new Date() },
+            create: {
+              id: userId,
+              telegramId: userId,
+              displayName: `User ${userId}`,
+              lastActiveAt: new Date(),
+            },
+          });
+          console.log("✅ User ensured");
+
+          // Then create the session
           await prisma.session.create({
             data: {
               userId,
