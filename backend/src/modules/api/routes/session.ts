@@ -38,7 +38,7 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
       const { userId: telegramId, chatId } = parseResult.data;
       console.log("📍 Heartbeat received:", { telegramId, chatId });
 
-      // Find user by telegramId
+      // Find user by telegramId (created by session middleware)
       const user = await prisma.user.findUnique({
         where: { telegramId },
       });
@@ -49,20 +49,25 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
       }
 
       try {
-        const updated = await prisma.session.updateMany({
+        // Update existing session or create new one
+        let session = await prisma.session.findFirst({
           where: {
             userId: user.id,
             status: "ACTIVE",
             ...(chatId != null ? { chatId } : {}),
           },
-          data: { lastHeartbeatAt: new Date() },
         });
 
-        console.log("✅ Updated sessions:", updated.count);
-
-        if (updated.count === 0) {
+        if (session) {
+          // Update heartbeat time
+          await prisma.session.update({
+            where: { id: session.id },
+            data: { lastHeartbeatAt: new Date() },
+          });
+          console.log("✅ Updated session heartbeat");
+        } else {
+          // Create new session
           console.log("📝 Creating new session for userId:", user.id);
-
           await prisma.session.create({
             data: {
               userId: user.id,
