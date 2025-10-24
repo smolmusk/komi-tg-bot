@@ -1,89 +1,22 @@
-:root {
-  font-family: "Inter", sans-serif;
-  background-color: #0f172a;
-  color: #f8fafc;
+* {
+  box-sizing: border-box;
 }
 
-body,
-html {
+html,
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
+body {
+  background: #fff;
+  color: #333;
 }
 
-.card {
-  background-color: #1e293b;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.4);
-}
-
-.controls button {
-  width: 100%;
-  padding: 1rem;
-  font-size: 1.25rem;
-  background: linear-gradient(135deg, #22d3ee, #818cf8);
-  border: none;
-  border-radius: 12px;
-  color: #0f172a;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.controls button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.status {
-  text-align: center;
-  padding: 0.5rem;
-  border-radius: 8px;
-}
-
-.status-online {
-  background-color: rgba(34, 197, 94, 0.2);
-  color: #bbf7d0;
-}
-
-.status-offline {
-  background-color: rgba(248, 113, 113, 0.2);
-  color: #fecaca;
-}
-
-.status-connecting {
-  background-color: rgba(251, 191, 36, 0.2);
-  color: #fde68a;
-}
-
-.error-banner {
-  background-color: rgba(248, 113, 113, 0.2);
-  color: #fecaca;
-  border: 1px solid rgba(248, 113, 113, 0.4);
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(248, 250, 252, 0.05);
-}
-
-li:last-child {
-  border-bottom: none;
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }

@@ -54,7 +54,7 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
         // If no session exists, create one
         if (updated.count === 0) {
           console.log("📝 Creating new session for userId:", userId);
-          
+
           // First, ensure the user exists
           await prisma.user.upsert({
             where: { id: userId },
@@ -84,13 +84,13 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
       } catch (dbError) {
         const err = dbError as any;
         console.error("❌ Database error in heartbeat:", err.code, err.message);
-        
+
         // Handle missing table gracefully
         if (err.code === "P2021") {
           console.error("Session table not initialized");
           return await reply.status(503).send({ error: "Database not initialized" });
         }
-        
+
         throw dbError;
       }
     } catch (error) {

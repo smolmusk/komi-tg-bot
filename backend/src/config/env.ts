@@ -9,9 +9,7 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1).optional(),
   REDIS_URL: z.string().optional(),
   TELEGRAM_BOT_TOKEN: z.string().min(1),
-  TELEGRAM_BOT_WEBHOOK: z
-    .union([z.string().url(), z.literal("")])
-    .optional(),
+  TELEGRAM_BOT_WEBHOOK: z.union([z.string().url(), z.literal("")]).optional(),
   TELEGRAM_BOT_MODE: z.enum(["polling", "webhook"]).default("polling"),
   TELEGRAM_BOT_SECRET: z.string().min(1),
   MINI_APP_URL: z.string().url(),
@@ -32,8 +30,7 @@ export const env = {
   redisUrl: result.data.REDIS_URL ?? process.env.REDIS_URL,
   telegramBotToken: result.data.TELEGRAM_BOT_TOKEN,
   telegramBotWebhook:
-    result.data.TELEGRAM_BOT_WEBHOOK != null &&
-    result.data.TELEGRAM_BOT_WEBHOOK.length > 0
+    result.data.TELEGRAM_BOT_WEBHOOK != null && result.data.TELEGRAM_BOT_WEBHOOK.length > 0
       ? result.data.TELEGRAM_BOT_WEBHOOK
       : undefined,
   telegramBotMode: result.data.TELEGRAM_BOT_MODE,
