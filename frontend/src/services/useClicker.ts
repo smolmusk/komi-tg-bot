@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { API_BASE_URL } from "../config/api";
 
 interface Options {
   userId: string | null;
@@ -14,7 +15,7 @@ export const useClicker = ({ userId, onSuccess, onError }: Options) => {
         throw new Error("User not initialised");
       }
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/clicks`, {
+      const res = await fetch(`${API_BASE_URL}/api/clicks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),

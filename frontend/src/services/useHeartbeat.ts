@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api";
 import { useEffect, useState } from "react";
 
 interface StatusState {
@@ -39,7 +40,7 @@ export const useHeartbeat = (userId: string | null): StatusState => {
           return;
         }
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/sessions/heartbeats`, {
+        const response = await fetch(`${API_BASE_URL}/api/sessions/heartbeats`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
