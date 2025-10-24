@@ -39,7 +39,6 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
       console.log("📍 Heartbeat received:", { userId, chatId });
 
       try {
-        // Try to update existing session
         const updated = await prisma.session.updateMany({
           where: {
             userId,
@@ -51,27 +50,22 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
 
         console.log("✅ Updated sessions:", updated.count);
 
-        // If no session exists, create one
         if (updated.count === 0) {
           console.log("📝 Creating new session for userId:", userId);
 
-          // First, ensure the user exists
-          await prisma.user.upsert({
-            where: { id: userId },
-            update: { lastActiveAt: new Date() },
-            create: {
-              id: userId,
-              telegramId: userId,
-              displayName: `User ${userId}`,
-              lastActiveAt: new Date(),
-            },
+          const user = await prisma.user.findUnique({
+            where: { telegramId: userId },
           });
-          console.log("✅ User ensured");
 
-          // Then create the session
+          if (!user) {
+            console.log("⚠️ User not found for telegramId:", userId);
+            return await reply.status(404).send({ error: "User not found" });
+          }
+
+          // Create session for existing user
           await prisma.session.create({
             data: {
-              userId,
+              userId: user.id,
               chatId: chatId ?? "unknown",
               status: "ACTIVE",
               lastHeartbeatAt: new Date(),
