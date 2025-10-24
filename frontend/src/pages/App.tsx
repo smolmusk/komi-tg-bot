@@ -72,7 +72,7 @@ const App = () => {
           if (response.ok) {
             const data = await response.json();
             console.log("📝 User data from backend:", data);
-            setUsername(data.username || data.displayName || firstName || `User ${telegramUserId}`);
+            setUsername(data.username || firstName || `User ${telegramUserId}`);
           } else {
             console.warn("Failed to fetch user data, using default");
             setUsername(firstName || `User ${telegramUserId}`);
