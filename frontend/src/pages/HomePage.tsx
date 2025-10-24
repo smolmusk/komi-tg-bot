@@ -20,7 +20,7 @@ const HomePage = ({
 }: HomePageProps) => {
   const isConnected = heartbeatStatus === "online";
   const isConnecting = heartbeatStatus === "connecting";
-  const { isLimited, retryAfter, message } = useRateLimit(error);
+  const { isLimited, retryAfter } = useRateLimit(error);
 
   return (
     <div className="home-page">
@@ -40,7 +40,7 @@ const HomePage = ({
 
       <div className="game-container">
         <div className="global-stats-card">
-          <div className="stat-label">🌍 Global Clicks</div>
+          <div className="stat-label">🌍 Total Clicks</div>
           <div className="stat-value">{globalClicks || "0"}</div>
         </div>
 

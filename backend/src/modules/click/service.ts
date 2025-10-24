@@ -25,6 +25,9 @@ export class ClickService {
     await redis.pexpire(userTotalKey, RATE_LIMIT_WINDOW_MS * 10);
     await redis.incrby(GLOBAL_METRIC_KEY, CLICK_INCREMENT);
 
+    // Get the current Redis value for leaderboard update
+    const currentRedisTotal = await redis.get(userTotalKey);
+
     const { totalClicks } = await prisma.user.update({
       where: { id: userId },
       data: {
@@ -49,7 +52,8 @@ export class ClickService {
       },
     });
 
-    await leaderboardService.updateScore(userId, Number(totalClicks));
+    // Use Redis value for leaderboard update to ensure consistency
+    await leaderboardService.updateScore(userId, Number(currentRedisTotal));
 
     return {
       totalClicks: totalClicks.toString(),

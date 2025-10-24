@@ -24,21 +24,21 @@ export const registerUserRoutes = async (app: FastifyInstance) => {
         return await reply.status(404).send({ error: "User not found" });
       }
 
-      const rankKey = "leaderboard:realtime";
-      const userRank = await redis.zrevrank(rankKey, user.id);
-      const rank = userRank !== null ? userRank + 1 : null;
-
-      // Get current total clicks from Redis for real-time value
-      const userTotalKey = `user:total:${user.id}`;
-      const currentTotal = await redis.get(userTotalKey);
-      const totalClicks = currentTotal || String(user.totalClicks);
+      // Calculate rank from database - count users with higher totalClicks
+      const rank = await prisma.user.count({
+        where: {
+          totalClicks: {
+            gt: user.totalClicks,
+          },
+        },
+      }) + 1;
 
       await reply.send({
         id: user.id,
         username: user.username,
         displayName: user.displayName,
         clicks: String(user.clicks),
-        totalClicks: totalClicks,
+        totalClicks: String(user.totalClicks),
         lastActiveAt: user.lastActiveAt?.toISOString() || null,
         createdAt: user.createdAt.toISOString(),
         rank,
@@ -69,20 +69,20 @@ export const registerUserRoutes = async (app: FastifyInstance) => {
         return await reply.status(404).send({ error: "User not found" });
       }
 
-      const rankKey = "leaderboard:realtime";
-      const userRank = await redis.zrevrank(rankKey, userId);
-      const rank = userRank !== null ? userRank + 1 : null;
-
-      // Get current total clicks from Redis for real-time value
-      const userTotalKey = `user:total:${user.id}`;
-      const currentTotal = await redis.get(userTotalKey);
-      const totalClicks = currentTotal || String(user.totalClicks);
+      // Calculate rank from database - count users with higher totalClicks
+      const rank = await prisma.user.count({
+        where: {
+          totalClicks: {
+            gt: user.totalClicks,
+          },
+        },
+      }) + 1;
 
       await reply.send({
         id: user.id,
         username: user.username,
         clicks: String(user.clicks),
-        totalClicks: totalClicks,
+        totalClicks: String(user.totalClicks),
         lastActiveAt: user.lastActiveAt?.toISOString() || null,
         createdAt: user.createdAt.toISOString(),
         rank,
