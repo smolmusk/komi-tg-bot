@@ -8,10 +8,6 @@ const schema = z.object({
   PORT: z.string().default("3000"),
   DATABASE_URL: z.string().min(1).optional(),
   REDIS_URL: z.string().optional(),
-  REDIS_TLS: z
-    .enum(["true", "false"])
-    .transform((value) => value === "true")
-    .optional(),
   TELEGRAM_BOT_TOKEN: z.string().min(1),
   TELEGRAM_BOT_WEBHOOK: z
     .union([z.string().url(), z.literal("")])
@@ -34,7 +30,6 @@ export const env = {
   port: Number(result.data.PORT),
   databaseUrl: result.data.DATABASE_URL ?? process.env.DATABASE_URL,
   redisUrl: result.data.REDIS_URL ?? process.env.REDIS_URL,
-  redisTls: result.data.REDIS_TLS ?? false,
   telegramBotToken: result.data.TELEGRAM_BOT_TOKEN,
   telegramBotWebhook:
     result.data.TELEGRAM_BOT_WEBHOOK != null &&

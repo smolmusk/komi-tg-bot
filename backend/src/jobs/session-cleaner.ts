@@ -73,5 +73,6 @@ export const scheduleSessionCleanup = async () => {
     console.log("Session cleanup scheduled successfully");
   } catch (error) {
     console.error("Failed to schedule session cleanup", error);
+    console.log("⚠️  Session cleanup will be disabled due to Redis connection issues");
   }
 };

@@ -18,6 +18,7 @@ const buildRedisClient = () => {
   };
   
   console.log(`Redis connection string: ${connectionString}`);
+  console.log(`Redis TLS: disabled (no TLS config)`);
 
   return new Redis(connectionString, options);
 };
