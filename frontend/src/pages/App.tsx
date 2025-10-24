@@ -65,7 +65,25 @@ const App = () => {
     if (telegramUserId != null) {
       console.log("✅ Telegram userId found:", telegramUserId);
       setUserId(String(telegramUserId));
-      setUsername(tgUsername || firstName || `User ${telegramUserId}`);
+
+      const fetchUsername = async () => {
+        try {
+          const response = await fetch(`/api/users/telegram/${telegramUserId}`);
+          if (response.ok) {
+            const data = await response.json();
+            console.log("📝 User data from backend:", data);
+            setUsername(data.username || data.displayName || firstName || `User ${telegramUserId}`);
+          } else {
+            console.warn("Failed to fetch user data, using default");
+            setUsername(firstName || `User ${telegramUserId}`);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUsername(firstName || `User ${telegramUserId}`);
+        }
+      };
+
+      void fetchUsername();
     } else {
       console.error("❌ No Telegram userId found");
     }
