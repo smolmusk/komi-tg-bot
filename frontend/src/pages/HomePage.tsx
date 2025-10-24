@@ -1,4 +1,5 @@
 import "../styles/home.css";
+import { useRateLimit } from "../services/useRateLimit";
 
 interface HomePageProps {
   username: string | null;
@@ -19,6 +20,7 @@ const HomePage = ({
 }: HomePageProps) => {
   const isConnected = heartbeatStatus === "online";
   const isConnecting = heartbeatStatus === "connecting";
+  const { isLimited, retryAfter, message } = useRateLimit(error);
 
   return (
     <div className="home-page">
@@ -31,10 +33,10 @@ const HomePage = ({
             {!isConnected && !isConnecting && "Disconnected"}
           </span>
         </div>
-        {username && <div className="user-name">Welcome, {username}! 👋</div>}
+        {username && <div className="user-name">Welcome 👋</div>}
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && !isLimited && <div className="error-message">{error}</div>}
 
       <div className="game-container">
         <div className="global-stats-card">
@@ -45,16 +47,19 @@ const HomePage = ({
         <button
           className="tap-button"
           onClick={onIncrement}
-          disabled={!isConnected || clickerLoading}
+          disabled={!isConnected || clickerLoading || isLimited}
         >
           <span className="tap-emoji">👆</span>
-          <span className="tap-text">TAP</span>
+          <span className="tap-text">
+            {isLimited ? `Wait ${retryAfter}s` : "TAP"}
+          </span>
         </button>
 
         <div className="tap-hint">
           {!isConnected && "Connect to start playing"}
-          {isConnected && "Click to earn points!"}
+          {isConnected && !isLimited && "Click to earn points!"}
           {isConnecting && "Connecting..."}
+          {isLimited && `Rate limited! Try again in ${retryAfter} seconds`}
         </div>
       </div>
     </div>

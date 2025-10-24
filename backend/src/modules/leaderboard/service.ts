@@ -37,22 +37,30 @@ export class LeaderboardService {
 
     const pipeline = redis.multi();
 
-    topUsers.forEach((user) => {
-      pipeline.zadd(LEADERBOARD_KEY, Number(user.totalClicks), user.id);
-    });
+    // Get current Redis values for each user and use those for leaderboard
+    const leaderboardEntries: LeaderboardEntry[] = [];
+    
+    for (let i = 0; i < topUsers.length; i++) {
+      const user = topUsers[i];
+      const userTotalKey = `user:total:${user.id}`;
+      const currentTotal = await redis.get(userTotalKey);
+      const totalClicks = currentTotal || Number(user.totalClicks);
+      
+      pipeline.zadd(LEADERBOARD_KEY, Number(totalClicks), user.id);
+      
+      leaderboardEntries.push({
+        rank: i + 1,
+        userId: user.id,
+        username: user.username ?? user.displayName,
+        totalClicks: totalClicks.toString(),
+      });
+    }
 
     pipeline.expire(LEADERBOARD_KEY, 10);
 
     await pipeline.exec();
 
-    return topUsers.map(
-      (user, index): LeaderboardEntry => ({
-        rank: index + 1,
-        userId: user.id,
-        username: user.username ?? user.displayName,
-        totalClicks: user.totalClicks.toString(),
-      })
-    );
+    return leaderboardEntries;
   }
 
   public async updateScore(userId: string, score: number) {
@@ -108,12 +116,22 @@ export class LeaderboardService {
       },
     });
 
-    return entries.map((entry) => {
+    // Get current Redis values for each user
+    const leaderboardEntries: LeaderboardEntry[] = [];
+    
+    for (const entry of entries) {
       const user = users.find((candidate) => candidate.id === entry.userId);
-      return {
+      const userTotalKey = `user:total:${entry.userId}`;
+      const currentTotal = await redis.get(userTotalKey);
+      const totalClicks = currentTotal || entry.totalClicks;
+      
+      leaderboardEntries.push({
         ...entry,
         username: user?.username ?? user?.displayName ?? "Anonymous",
-      };
-    });
+        totalClicks: totalClicks.toString(),
+      });
+    }
+
+    return leaderboardEntries;
   }
 }

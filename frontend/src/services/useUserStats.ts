@@ -8,7 +8,7 @@ export interface UserStats {
   totalClicks: string;
   lastActiveAt: string | null;
   createdAt: string;
-  rank: number;
+  rank: number | null;
 }
 
 const fetchUserStats = async (telegramId: string): Promise<UserStats> => {

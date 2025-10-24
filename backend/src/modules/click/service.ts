@@ -14,7 +14,11 @@ const leaderboardService = new LeaderboardService();
 
 export class ClickService {
   public async registerClick(userId: string) {
-    await this.ensureRateLimit(userId);
+    const rateLimitResult = await this.ensureRateLimit(userId);
+    
+    if (!rateLimitResult.allowed) {
+      throw new Error(`Rate limit exceeded. Try again in ${Math.ceil((rateLimitResult.retryAfter || 1000) / 1000)} seconds.`);
+    }
 
     const userTotalKey = `${USER_TOTAL_KEY_PREFIX}${userId}`;
     await redis.incrby(userTotalKey, CLICK_INCREMENT);
@@ -53,7 +57,7 @@ export class ClickService {
     };
   }
 
-  private async ensureRateLimit(userId: string) {
+  private async ensureRateLimit(userId: string): Promise<{ allowed: boolean; retryAfter?: number; usage?: number }> {
     const key = `${RATE_LIMIT_KEY_PREFIX}${userId}`;
 
     const results = await redis.multi().incr(key).pttl(key).exec();
@@ -77,7 +81,13 @@ export class ClickService {
     );
 
     if (usage > RATE_LIMIT_MAX_ACTIONS) {
-      throw new Error(`Rate limit exceeded: ${usage} clicks within ${ttl}`);
+      return {
+        allowed: false,
+        retryAfter: ttl > 0 ? ttl : RATE_LIMIT_WINDOW_MS,
+        usage
+      };
     }
+
+    return { allowed: true, usage };
   }
 }

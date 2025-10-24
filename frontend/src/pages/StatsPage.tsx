@@ -45,7 +45,7 @@ const StatsPage = ({ userId }: StatsPageProps) => {
             <div className="stat-card">
               <div className="stat-card-icon">🏆</div>
               <div className="stat-card-label">Rank</div>
-              <div className="stat-card-value">#{stats.rank}</div>
+              <div className="stat-card-value">{stats.rank ? `#${stats.rank}` : "No rank"}</div>
             </div>
 
             <div className="stat-card">
