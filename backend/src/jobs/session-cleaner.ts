@@ -7,7 +7,7 @@ const SESSION_QUEUE = "session-cleaner";
 const connection = redis.duplicate({
   connectTimeout: 30000,
   keepAlive: 30000,
-  maxRetriesPerRequest: 3,
+  maxRetriesPerRequest: null,
   enableReadyCheck: false,
   lazyConnect: false,
   enableOfflineQueue: true,
