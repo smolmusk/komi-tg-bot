@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useHeartbeat } from "../services/useHeartbeat";
 import { useLeaderboards } from "../services/useLeaderboards";
 import { useClicker } from "../services/useClicker";
+import { API_BASE_URL } from "../config/api";
 import HomePage from "../pages/HomePage";
 import LeaderboardPage from "../pages/LeaderboardPage";
 import StatsPage from "../pages/StatsPage";
@@ -68,7 +69,7 @@ const App = () => {
 
       const fetchUsername = async () => {
         try {
-          const response = await fetch(`/api/users/telegram/${telegramUserId}`);
+          const response = await fetch(`${API_BASE_URL}/users/telegram/${telegramUserId}`);
           if (response.ok) {
             const data = await response.json();
             console.log("📝 User data from backend:", data);
