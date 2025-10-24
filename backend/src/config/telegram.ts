@@ -34,7 +34,14 @@ bot.command("start", async (ctx) => {
   });
 
   if (!user || !user.username) {
-    ctx.scene.session.userId = user?.id || userId;
+    console.log(`Entering onboarding for user: ${userId}`);
+    // Initialize scene session with userId
+    if (ctx.scene) {
+      if (!ctx.scene.session) {
+        (ctx.scene as any).session = {};
+      }
+      (ctx.scene.session as any).userId = user?.id || userId;
+    }
     await ctx.scene.enter("ONBOARDING_SCENE");
   } else {
     await ctx.reply(
@@ -65,14 +72,14 @@ bot.command("help", async (ctx) => {
 
 bot.command("leaderboard", async (ctx) => {
   await ctx.reply(
-    "🏆 **Leaderboard**\n\nTop players will be shown here!\n\nClick the button below to view the full leaderboard!",
+    "🏆 **Leaderboard**\n\nView the top 20 players!",
     {
       reply_markup: {
         inline_keyboard: [
           [
             {
               text: "🏆 View Leaderboard",
-              web_app: { url: env.miniAppUrl },
+              web_app: { url: `${env.miniAppUrl}?tab=leaderboard` },
             },
           ],
         ],
@@ -83,14 +90,14 @@ bot.command("leaderboard", async (ctx) => {
 
 bot.command("stats", async (ctx) => {
   await ctx.reply(
-    "📊 **Your Stats**\n\nYour game statistics will be shown here!\n\nClick the button below to view your stats!",
+    "📊 **Your Stats**\n\nView your game statistics!",
     {
       reply_markup: {
         inline_keyboard: [
           [
             {
               text: "📊 View My Stats",
-              web_app: { url: env.miniAppUrl },
+              web_app: { url: `${env.miniAppUrl}?tab=stats` },
             },
           ],
         ],

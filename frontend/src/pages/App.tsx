@@ -42,6 +42,15 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState<Page>("home");
 
   useEffect(() => {
+    // Check for tab parameter in URL
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get("tab") as Page | null;
+    if (tabParam && ["home", "leaderboard", "stats"].includes(tabParam)) {
+      setCurrentPage(tabParam);
+    }
+  }, []);
+
+  useEffect(() => {
     const telegramUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     const tgUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username;
     const firstName = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name;
