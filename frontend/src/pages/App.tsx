@@ -12,6 +12,7 @@ declare global {
   interface Window {
     Telegram?: {
       WebApp?: {
+        initData?: string;
         initDataUnsafe?: {
           user?: {
             id: number;
@@ -36,9 +37,19 @@ const App = () => {
   useEffect(() => {
     // Get userId from Telegram Web App
     const telegramUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-
+    
+    console.log("Telegram Web App data:", {
+      hasWebApp: !!window.Telegram?.WebApp,
+      initData: window.Telegram?.WebApp?.initData?.substring(0, 50),
+      initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
+      userId: telegramUserId,
+    });
+    
     if (telegramUserId != null) {
+      console.log("✅ Telegram userId found:", telegramUserId);
       setUserId(String(telegramUserId));
+    } else {
+      console.error("❌ No Telegram userId found");
     }
   }, []);
 

@@ -8,6 +8,7 @@ export default defineConfig({
     host: "0.0.0.0",
     allowedHosts: true,
     cors: true,
+    hmr: process.env.NODE_ENV === "production" ? false : undefined,
   },
   build: {
     outDir: "dist",

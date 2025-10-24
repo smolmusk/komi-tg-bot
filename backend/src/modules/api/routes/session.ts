@@ -27,24 +27,47 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
   });
 
   app.post("/heartbeats", async (request, reply) => {
-    const parseResult = heartbeatSchema.safeParse(request.body);
+    try {
+      const parseResult = heartbeatSchema.safeParse(request.body);
 
-    if (!parseResult.success) {
-      return await reply.status(400).send({ error: "Invalid payload" });
+      if (!parseResult.success) {
+        return await reply.status(400).send({ error: "Invalid payload" });
+      }
+
+      const { userId, chatId } = parseResult.data;
+
+      // Try to update existing session
+      const updated = await prisma.session.updateMany({
+        where: {
+          userId,
+          status: "ACTIVE",
+          ...(chatId != null ? { chatId } : {}),
+        },
+        data: { lastHeartbeatAt: new Date() },
+      });
+
+      // If no session exists, create one
+      if (updated.count === 0) {
+        await prisma.session.create({
+          data: {
+            userId,
+            chatId: chatId ?? "unknown",
+            status: "ACTIVE",
+            lastHeartbeatAt: new Date(),
+          },
+        });
+      }
+
+      await reply.send({ status: "ok" });
+    } catch (error) {
+      const err = error as any;
+      // Handle missing table gracefully
+      if (err.code === "P2021") {
+        console.error("Session table not initialized:", err.message);
+        return await reply.status(503).send({ error: "Database not initialized" });
+      }
+      throw error;
     }
-
-    const { userId, chatId } = parseResult.data;
-
-    await prisma.session.updateMany({
-      where: {
-        userId,
-        status: "ACTIVE",
-        ...(chatId != null ? { chatId } : {}),
-      },
-      data: { lastHeartbeatAt: new Date() },
-    });
-
-    await reply.send({ status: "ok" });
   });
 
   app.post("/terminate", async (request, reply) => {
