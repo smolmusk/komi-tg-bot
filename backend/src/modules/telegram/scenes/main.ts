@@ -28,7 +28,7 @@ export const createMainScenes = () => {
 
     await ctx.replyWithHTML(
       `Welcome back <b>${
-        user.username ?? user.displayName ?? "player"
+        user.username || user.displayName || "player"
       }</b>!\nYour total clicks: <b>${user.totalClicks.toString()}</b>\n${leaderboardText}`,
       Markup.inlineKeyboard(buildMainMenu())
     );

@@ -35,13 +35,23 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
         return await reply.status(400).send({ error: "Invalid payload" });
       }
 
-      const { userId, chatId } = parseResult.data;
-      console.log("📍 Heartbeat received:", { userId, chatId });
+      const { userId: telegramId, chatId } = parseResult.data;
+      console.log("📍 Heartbeat received:", { telegramId, chatId });
+
+      // Find user by telegramId
+      const user = await prisma.user.findUnique({
+        where: { telegramId },
+      });
+
+      if (!user) {
+        console.log("⚠️ User not found for telegramId:", telegramId);
+        return await reply.status(404).send({ error: "User not found" });
+      }
 
       try {
         const updated = await prisma.session.updateMany({
           where: {
-            userId,
+            userId: user.id,
             status: "ACTIVE",
             ...(chatId != null ? { chatId } : {}),
           },
@@ -51,18 +61,8 @@ export const registerSessionRoutes = async (app: FastifyInstance) => {
         console.log("✅ Updated sessions:", updated.count);
 
         if (updated.count === 0) {
-          console.log("📝 Creating new session for userId:", userId);
+          console.log("📝 Creating new session for userId:", user.id);
 
-          const user = await prisma.user.findUnique({
-            where: { telegramId: userId },
-          });
-
-          if (!user) {
-            console.log("⚠️ User not found for telegramId:", userId);
-            return await reply.status(404).send({ error: "User not found" });
-          }
-
-          // Create session for existing user
           await prisma.session.create({
             data: {
               userId: user.id,
