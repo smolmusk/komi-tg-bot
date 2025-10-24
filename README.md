@@ -131,7 +131,7 @@ npm test
 - Provision managed PostgreSQL and Redis instances for HA workloads.
 - Regularly prune `click_event` records or materialize analytics if long-term history is required.
 
-## Task Specification (from TODO.md)
+## Task Specification
 
 ```
 Telegram’s Technical Test - Rev. 002
