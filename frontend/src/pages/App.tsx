@@ -8,16 +8,37 @@ import GlobalStats from "../components/GlobalStats";
 import Controls from "../components/Controls";
 import SessionStatus from "../components/SessionStatus";
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        initDataUnsafe?: {
+          user?: {
+            id: number;
+          };
+          chat?: {
+            id: number;
+          };
+        };
+        chat?: {
+          id: number;
+        };
+      };
+    };
+  }
+}
+
 const App = () => {
   const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("userId");
-    if (id != null) {
-      setUserId(id);
+    // Get userId from Telegram Web App
+    const telegramUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+
+    if (telegramUserId != null) {
+      setUserId(String(telegramUserId));
     }
   }, []);
 
