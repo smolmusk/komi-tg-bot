@@ -1,5 +1,6 @@
 import { Telegraf, Scenes, session } from "telegraf";
 import { env } from "./env";
+import { prisma } from "../infra/prisma";
 import { createSessionMiddleware } from "../modules/session/session.middleware";
 import { createOnboardingScenes } from "../modules/telegram/scenes/onboarding";
 import { createMainScenes } from "../modules/telegram/scenes/main";
@@ -16,21 +17,40 @@ const stage = new Scenes.Stage<SessionContext>([
 
 bot.command("start", async (ctx) => {
   console.log("✅ /start command received!");
-  await ctx.reply(
-    "Welcome to Komi Clicker! 🚀\n\nThis is a simple clicker game where you can:\n• Click to earn points\n• View leaderboards\n• Compete with friends\n\nClick the button below to start playing!",
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "🎮 Play Komi Clicker",
-              web_app: { url: env.miniAppUrl },
-            },
+
+  if (!ctx.from?.id) {
+    await ctx.reply("Error: Unable to identify user");
+    return;
+  }
+
+  const userId = String(ctx.from.id);
+
+  const user = await prisma.user.findUnique({
+    where: { telegramId: userId },
+  });
+
+  if (!user || !user.username) {
+    ctx.scene.session.userId = user?.id || userId;
+    await ctx.scene.enter("ONBOARDING_SCENE");
+  } else {
+    await ctx.reply(
+      `Welcome back, ${user.username}! 🚀\n\n` +
+      "Ready to click your way to the top?\n\n" +
+      "Click the button below to start playing!",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🎮 Play Komi Clicker",
+                web_app: { url: env.miniAppUrl },
+              },
+            ],
           ],
-        ],
-      },
-    }
-  );
+        },
+      }
+    );
+  }
 });
 
 bot.command("help", async (ctx) => {

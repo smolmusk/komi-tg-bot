@@ -6,7 +6,6 @@ import { useClicker } from "../services/useClicker";
 import HomePage from "../pages/HomePage";
 import LeaderboardPage from "../pages/LeaderboardPage";
 import StatsPage from "../pages/StatsPage";
-import UsernameSetupPage from "../pages/UsernameSetupPage";
 import "../styles/app.css";
 
 declare global {
@@ -39,8 +38,6 @@ const App = () => {
   const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
-  const [telegramUsername, setTelegramUsername] = useState<string | undefined>();
-  const [usernameSetup, setUsernameSetup] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<Page>("home");
 
@@ -59,8 +56,7 @@ const App = () => {
     if (telegramUserId != null) {
       console.log("✅ Telegram userId found:", telegramUserId);
       setUserId(String(telegramUserId));
-      setTelegramUsername(tgUsername);
-      setUsernameSetup(false);
+      setUsername(tgUsername || firstName || `User ${telegramUserId}`);
     } else {
       console.error("❌ No Telegram userId found");
     }
@@ -80,11 +76,6 @@ const App = () => {
     },
   });
 
-  const handleUsernameSetupComplete = (newUsername: string) => {
-    setUsername(newUsername);
-    setUsernameSetup(true);
-  };
-
   if (!userId) {
     return (
       <div className="app-container">
@@ -94,16 +85,6 @@ const App = () => {
           </div>
         </div>
       </div>
-    );
-  }
-
-  if (!usernameSetup) {
-    return (
-      <UsernameSetupPage
-        userId={userId}
-        telegramUsername={telegramUsername}
-        onComplete={handleUsernameSetupComplete}
-      />
     );
   }
 

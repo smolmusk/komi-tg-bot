@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import type { LeaderboardEntry } from "../types";
+import { API_BASE_URL } from "../config/api";
 
 const fetchLeaderboard = async (): Promise<LeaderboardEntry[]> => {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaderboard`);
+  const res = await fetch(`${API_BASE_URL}/api/leaderboard`);
   if (!res.ok) {
     throw new Error("Failed to load leaderboard");
   }
@@ -10,7 +11,7 @@ const fetchLeaderboard = async (): Promise<LeaderboardEntry[]> => {
 };
 
 const fetchGlobal = async (): Promise<string> => {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaderboard/global`);
+  const res = await fetch(`${API_BASE_URL}/api/leaderboard/global`);
   if (!res.ok) {
     throw new Error("Failed to load totals");
   }
@@ -23,12 +24,14 @@ export const useLeaderboards = () => {
     queryKey: ["leaderboard"],
     queryFn: fetchLeaderboard,
     refetchInterval: 10000,
+    staleTime: 5000,
   });
 
   const global = useQuery({
     queryKey: ["global"],
     queryFn: fetchGlobal,
     refetchInterval: 10000,
+    staleTime: 5000,
   });
 
   return {
