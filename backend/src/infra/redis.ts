@@ -16,7 +16,7 @@ const buildRedisClient = () => {
     lazyConnect: false,
     enableOfflineQueue: true,
   };
-  
+
   console.log(`Redis connection string: ${connectionString}`);
   console.log(`Redis TLS: disabled (no TLS config)`);
 
@@ -47,7 +47,6 @@ if (!redisLogAttached) {
   redisLogAttached = true;
 }
 
-// Test Redis connection with retry
 const testRedisConnection = async () => {
   try {
     await redis.ping();
@@ -55,12 +54,16 @@ const testRedisConnection = async () => {
   } catch (error) {
     console.error("Redis ping failed:", error);
     console.log("⚠️  Redis is not available, app will continue without Redis features");
-    // Don't throw, let the app continue without Redis
   }
 };
 
-// Test connection after a short delay
-setTimeout(testRedisConnection, 1000);
+if (process.env.NODE_ENV !== "production") {
+  setTimeout(testRedisConnection, 1000);
+} else {
+  testRedisConnection().catch((error) => {
+    console.error("Redis test error:", error);
+  });
+}
 
 if (process.env.NODE_ENV !== "production") {
   globalForRedis.redis = redis;
