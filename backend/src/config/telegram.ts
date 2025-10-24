@@ -15,6 +15,10 @@ const stage = new Scenes.Stage<SessionContext>([
   ...createMainScenes(),
 ]);
 
+bot.use(session());
+bot.use(createSessionMiddleware());
+bot.use(stage.middleware());
+
 bot.command("start", async (ctx) => {
   console.log("✅ /start command received!");
 
@@ -35,8 +39,8 @@ bot.command("start", async (ctx) => {
   } else {
     await ctx.reply(
       `Welcome back, ${user.username}! 🚀\n\n` +
-      "Ready to click your way to the top?\n\n" +
-      "Click the button below to start playing!",
+        "Ready to click your way to the top?\n\n" +
+        "Click the button below to start playing!",
       {
         reply_markup: {
           inline_keyboard: [
@@ -94,10 +98,6 @@ bot.command("stats", async (ctx) => {
     }
   );
 });
-
-bot.use(session());
-bot.use(createSessionMiddleware());
-bot.use(stage.middleware());
 
 bot.catch(async (err, ctx) => {
   await ctx.reply("An unexpected error occurred. Please try again later.");
