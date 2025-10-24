@@ -29,9 +29,7 @@ const StatsPage = ({ userId }: StatsPageProps) => {
         <p className="stats-subtitle">Track your progress</p>
       </div>
 
-      {error && (
-        <div className="stats-error">⚠️ Failed to load stats: {error}</div>
-      )}
+      {error && <div className="stats-error">⚠️ Failed to load stats: {error}</div>}
 
       {loading ? (
         <div className="stats-loading">Loading your stats...</div>
