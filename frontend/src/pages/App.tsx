@@ -69,7 +69,7 @@ const App = () => {
 
       const fetchUsername = async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/users/telegram/${telegramUserId}`);
+          const response = await fetch(`${API_BASE_URL}/users/telegram/${telegramUserId}?t=${Date.now()}`);
           if (response.ok) {
             const data = await response.json();
             console.log("📝 User data from backend:", data);
@@ -97,6 +97,7 @@ const App = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
       void queryClient.invalidateQueries({ queryKey: ["global"] });
+      void queryClient.invalidateQueries({ queryKey: ["userStats"] });
       setError(null);
     },
     onError: (message) => {

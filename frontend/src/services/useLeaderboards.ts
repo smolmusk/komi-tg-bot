@@ -23,15 +23,13 @@ export const useLeaderboards = () => {
   const leaderboard = useQuery({
     queryKey: ["leaderboard"],
     queryFn: fetchLeaderboard,
-    refetchInterval: 10000,
-    staleTime: 5000,
+    staleTime: 0,
   });
 
   const global = useQuery({
     queryKey: ["global"],
     queryFn: fetchGlobal,
-    refetchInterval: 10000,
-    staleTime: 5000,
+    staleTime: 0,
   });
 
   return {

@@ -11,8 +11,8 @@ export interface UserStats {
   rank: number;
 }
 
-const fetchUserStats = async (userId: string): Promise<UserStats> => {
-  const res = await fetch(`${API_BASE_URL}/api/users/${userId}`);
+const fetchUserStats = async (telegramId: string): Promise<UserStats> => {
+  const res = await fetch(`${API_BASE_URL}/api/users/telegram/${telegramId}`);
   if (!res.ok) {
     throw new Error("Failed to load user stats");
   }
