@@ -15,7 +15,6 @@ export const createSessionMiddleware = (): MiddlewareFn<SessionContext> => {
       where: { telegramId },
       update: {
         lastActiveAt: new Date(),
-        username: ctx.from.username ?? undefined,
         displayName:
           ctx.from.first_name != null
             ? `${ctx.from.first_name}${ctx.from.last_name != null ? ` ${ctx.from.last_name}` : ""}`
@@ -23,7 +22,7 @@ export const createSessionMiddleware = (): MiddlewareFn<SessionContext> => {
       },
       create: {
         telegramId,
-        username: ctx.from.username,
+        username: null,
         displayName:
           ctx.from.first_name != null
             ? `${ctx.from.first_name}${ctx.from.last_name != null ? ` ${ctx.from.last_name}` : ""}`
